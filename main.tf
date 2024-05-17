@@ -82,3 +82,31 @@ resource "azurerm_virtual_network_peering" "VnetB-VnetC" {
   virtual_network_name      = azurerm_virtual_network.vnetB.name
   remote_virtual_network_id = azurerm_virtual_network.vnetC.id
 }
+
+resource "azurerm_route_table" "routetableA" {
+  name                          = "RouteTableA"
+  location                      = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  disable_bgp_route_propagation = false
+
+  route {
+    name           = "To-C"
+    address_prefix = "10.2.0.0/24"
+    next_hop_type  = "VirtualAppliance"
+    next_hop_in_ip_address = "10.1.0.4"
+  }
+}
+
+resource "azurerm_route_table" "routetableC" {
+  name                          = "RouteTableC"
+  location                      = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  disable_bgp_route_propagation = false
+
+  route {
+    name           = "To-A"
+    address_prefix = "10.0.0.0/20"
+    next_hop_type  = "VirtualAppliance"
+    next_hop_in_ip_address = "10.1.0.4"
+  }
+}
