@@ -19,7 +19,7 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
-resource "azurerm_virtual_network" "vnet" {
+resource "azurerm_virtual_network" "vnetA" {
   name                = "vnetA"
   location            = "West Europe"
   resource_group_name = "JulkaTest1"
@@ -31,7 +31,7 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
-resource "azurerm_virtual_network" "vnet" {
+resource "azurerm_virtual_network" "vnetB" {
   name                = "vnetB"
   location            = "West Europe"
   resource_group_name = "JulkaTest1"
@@ -43,7 +43,7 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
-resource "azurerm_virtual_network" "vnet" {
+resource "azurerm_virtual_network" "vnetC" {
   name                = "vnetC"
   location            = "West Europe"
   resource_group_name = "JulkaTest1"
@@ -53,4 +53,32 @@ resource "azurerm_virtual_network" "vnet" {
     name           = "subnetC"
     address_prefix = "10.2.0.0/24"
   }
+}
+
+resource "azurerm_virtual_network_peering" "VnetA-VnetB" {
+  name                      = "VnetAVnetB"
+  resource_group_name       = azurerm_resource_group.rg.name
+  virtual_network_name      = azurerm_virtual_network.vnetA.name
+  remote_virtual_network_id = azurerm_virtual_network.vnetB.id
+}
+
+resource "azurerm_virtual_network_peering" "VnetC-VnetB" {
+  name                      = "VnetCVnetB"
+  resource_group_name       = azurerm_resource_group.rg.name
+  virtual_network_name      = azurerm_virtual_network.vnetC.name
+  remote_virtual_network_id = azurerm_virtual_network.vnetB.id
+}
+
+resource "azurerm_virtual_network_peering" "VnetB-VnetA" {
+  name                      = "VnetAVnetB"
+  resource_group_name       = azurerm_resource_group.rg.name
+  virtual_network_name      = azurerm_virtual_network.vnetB.name
+  remote_virtual_network_id = azurerm_virtual_network.vnetA.id
+}
+
+resource "azurerm_virtual_network_peering" "VnetB-VnetC" {
+  name                      = "VnetCVnetB"
+  resource_group_name       = azurerm_resource_group.rg.name
+  virtual_network_name      = azurerm_virtual_network.vnetB.name
+  remote_virtual_network_id = azurerm_virtual_network.vnetC.id
 }
