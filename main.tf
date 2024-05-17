@@ -41,7 +41,7 @@ resource "azurerm_virtual_network" "vnetB" {
 }
 
 resource "azurerm_subnet" "subB" {
-    name           = "subnetB"
+    name           = "AzureFirewallSubnet"
     resource_group_name  = azurerm_resource_group.rg.name
     virtual_network_name = azurerm_virtual_network.vnetB.name
     address_prefixes = ["10.1.1.0/24"]
@@ -202,13 +202,6 @@ resource "azurerm_windows_virtual_machine" "vmC" {
 }
 
 #FIREWALL
-
-resource "azurerm_subnet" "example" {
-  name                 = "AzureFirewallSubnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnetB.name
-  address_prefixes     = ["10.1.1.0/24"]
-}
 
 resource "azurerm_public_ip" "publicip1" {
   name                = "pi1"
