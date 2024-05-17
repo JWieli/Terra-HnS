@@ -22,7 +22,7 @@ resource "azurerm_resource_group" "rg" {
 resource "azurerm_virtual_network" "vnetA" {
   name                = "vnetA"
   location            = "West Europe"
-  resource_group_name = "JulkaTest1"
+  resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/23"]
 }
 
@@ -36,7 +36,7 @@ resource "azurerm_subnet" "subA" {
 resource "azurerm_virtual_network" "vnetB" {
   name                = "vnetB"
   location            = "West Europe"
-  resource_group_name = "JulkaTest1"
+  resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.1.0.0/23"]
 }
 
@@ -50,7 +50,7 @@ resource "azurerm_subnet" "subB" {
 resource "azurerm_virtual_network" "vnetC" {
   name                = "vnetC"
   location            = "West Europe"
-  resource_group_name = "JulkaTest1"
+  resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.2.0.0/23"]
 }
 resource "azurerm_subnet" "subC" {
@@ -124,5 +124,79 @@ resource "azurerm_route_table" "routetableC" {
 
 resource "azurerm_subnet_route_table_association" "sub2rt" {
   subnet_id      = azurerm_subnet.subC.id
-  route_table_id = azurerm_route_table.routetableA.id
+  route_table_id = azurerm_route_table.routetableC.id
+}
+
+#VMKI i NIC
+
+resource "azurerm_network_interface" "nicA" {
+  name                = "NICA"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subA.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_windows_virtual_machine" "vmA" {
+  name                = "vmA"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = "West Europe"
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  admin_password      = "julka123123!"
+  network_interface_ids = [
+    azurerm_network_interface.nicA.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2016-Datacenter"
+    version   = "latest"
+  }
+}
+
+resource "azurerm_network_interface" "nicC" {
+  name                = "NICC"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subC.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_windows_virtual_machine" "vmC" {
+  name                = "vmC"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = "West Europe"
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  admin_password      = "julka123123!"
+  network_interface_ids = [
+    azurerm_network_interface.nicC.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2016-Datacenter"
+    version   = "latest"
+  }
 }
