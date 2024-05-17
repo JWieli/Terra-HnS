@@ -200,3 +200,61 @@ resource "azurerm_windows_virtual_machine" "vmC" {
     version   = "latest"
   }
 }
+
+#FIREWALL
+
+resource "azurerm_public_ip" "publicip1" {
+  name                = "pi1"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_firewall" "firewall" {
+  name                = "firewall"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku_name            = "AZFW_VNet"
+  sku_tier            = "Standard"
+
+  ip_configuration {
+    name                 = "configuration"
+    subnet_id            = azurerm_subnet.subB.id
+    public_ip_address_id = azurerm_virtual_network.vnetB.id
+  }
+}
+
+resource "azurerm_firewall_application_rule_collection" "rule1" {
+  name                = "A-C"
+  azure_firewall_name = azurerm_firewall.firewall.name
+  resource_group_name = azurerm_resource_group.rg.name
+  priority            = 110
+  action              = "Allow"
+
+  rule {
+    name = "A-C"
+    source_addresses = ["10.0.0.0/24"]
+    protocol {
+      port = "443"
+      type = "Https"
+    }
+  }
+}
+
+resource "azurerm_firewall_application_rule_collection" "rule2" {
+  name                = "C-A"
+  azure_firewall_name = azurerm_firewall.firewall.name
+  resource_group_name = azurerm_resource_group.rg.name
+  priority            = 120
+  action              = "Allow"
+
+  rule {
+    name = "C-A"
+    source_addresses = ["10.2.0.0/24"]
+    protocol {
+      port = "443"
+      type = "Https"
+    }
+  }
+}
